@@ -1,0 +1,147 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "McKesson Mock Inventory API",
+    "description": "API for checking mock inventory levels of medications at different warehouses.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/inventory": {
+      "get": {
+        "summary": "Check Inventory",
+        "description": "Check the inventory of a specific medication at a specific warehouse location.\n\n- **warehouse**: The city of the warehouse (e.g., 'richmond', 'dallas').\n- **medication**: The name of the medication (e.g., 'insulin', 'amoxicillin', 'mrna-vaccine').",
+        "operationId": "check_inventory_inventory_get",
+        "parameters": [
+          {
+            "name": "warehouse",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Warehouse"
+            }
+          },
+          {
+            "name": "medication",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Medication"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryCheckResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "InventoryCheckResponse": {
+        "properties": {
+          "warehouse_location": {
+            "type": "string",
+            "title": "Warehouse Location"
+          },
+          "medication_name": {
+            "type": "string",
+            "title": "Medication Name"
+          },
+          "in_stock": {
+            "type": "boolean",
+            "title": "In Stock"
+          },
+          "stock_quantity": {
+            "type": "integer",
+            "title": "Stock Quantity"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "warehouse_location",
+          "medication_name",
+          "in_stock",
+          "stock_quantity",
+          "unit"
+        ],
+        "title": "InventoryCheckResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://inventory-api-205245295308.us-central1.run.app"
+    }
+  ]
+}
