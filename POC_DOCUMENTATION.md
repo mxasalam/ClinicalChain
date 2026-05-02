@@ -9,7 +9,9 @@ The core objective is to build a **McKesson-style conversational agent** that as
 
 ## Architecture & Technology Stack
 - **The Data Layer (RAG)**: Google Cloud Storage for raw PDF manuals -> Vertex AI Agent Builder Data Store (automates embedding and vector search without requiring a manual Cloud Function).
-- **The Logic Layer (Tools)**: An "Inventory Database" simulated via a containerized **FastAPI** application hosted on **Google Cloud Run**.
+- **The Database Layer**: **Cloud SQL (PostgreSQL)** securely accessed via **Secret Manager**.
+- **The Logic Layer (Tools)**: An Inventory API built with **FastAPI** and **SQLAlchemy**, featuring automated **Cloud Logging**, containerized via Docker and hosted on **Google Cloud Run**.
+- **The CI/CD Pipeline**: Automated deployment via **GitHub Actions** securely authenticated to GCP using **Workload Identity Federation** and built natively via **Cloud Build**.
 - **The Brain**: **Gemini 1.5 Pro** accessed via **Vertex AI Agent Builder**, equipped with an OpenAPI Tool (for inventory checking) and a Data Store Search Tool (for regulation queries).
 
 ---
@@ -21,12 +23,17 @@ The core objective is to build a **McKesson-style conversational agent** that as
 -  Generated a suite of mock PDF shipping manuals (for Insulin, Amoxicillin, and mRNA vaccines).
 -  Successfully installed and authenticated the `gcloud` CLI (using `gcloud init` and pulling Application-Default Credentials).
 
-### Phase 1: Logic Layer (Inventory API)
--  Written a fast and responsive `FastAPI` application mimicking the inventory DB (`inventory-api/main.py`).
--  Written a `Dockerfile` for containerization.
--  Enabled the required GCP APIs for deployment (Cloud Run, Cloud Build, Artifact Registry, Discovery Engine).
--  **Deployed the container seamlessly to Google Cloud Run**.
+### Phase 1: Logic Layer (Inventory API & Database)
+-  Provisioned a **Cloud SQL (PostgreSQL)** instance to store real inventory data instead of a mock dictionary.
+-  Generated a secure password and stored it in **Secret Manager**.
+-  Rewrote the `FastAPI` application (`inventory-api/main.py`) to connect to Cloud SQL using `SQLAlchemy` and the `cloud-sql-python-connector`.
+-  Integrated **Cloud Logging** to stream API requests directly to GCP Logs Explorer.
 -  Generated and modified the `openapi.json` file to point specifically to the live Cloud Run endpoint, preparing it for Agent Builder ingestion.
+
+### Phase 2: CI/CD Pipeline (GitHub Actions & Cloud Build)
+-  Provisioned a Google **Artifact Registry** repository.
+-  Configured **Workload Identity Federation** to allow GitHub Actions to securely authenticate to GCP without long-lived JSON keys.
+-  Created `cloudbuild.yaml` and `.github/workflows/deploy.yml` to automatically build, push, and deploy the FastAPI container to **Cloud Run** on every push to the `main` branch.
 
 ### Phase 2: Data Storage Implementation
 -  Provisioned a Google Cloud Storage bucket (`gs://clinicalchain-manuals-mxasalam`) residing in `us-central1`.
@@ -36,7 +43,7 @@ All initial code and assets have been committed and safely pushed to the `main` 
 
 ---
 
-## 🟡 What Is Left To Do (Phase 3: The UI Configuration)
+## 🟡 What Is Left To Do (Phase 4: The Agent Builder UI)
 
 The foundational backend infrastructure is complete. The remaining steps need to be interactively completed by the user directly within the **Google Cloud Console**, as this allows you to best familiarize yourself with the platform for your interview.
 
